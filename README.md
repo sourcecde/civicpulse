@@ -4,8 +4,21 @@ CivicPulse is a civic issue reporting and urban operations platform. Citizens re
 problems (potholes, waterlogging, garbage, broken streetlights, and similar issues); operators
 triage, assign, and resolve them. See `CLAUDE.md` for full product and architecture context.
 
-This milestone is backend-only: a Laravel API booting locally against PostgreSQL/PostGIS with a
-health endpoint. No authentication, domain models, or frontend yet.
+Current state is backend-only: a Laravel API on PostgreSQL/PostGIS with a health endpoint,
+citizen registration, and Sanctum token authentication. No civic domain models or frontend yet.
+
+## Authentication
+
+The API uses [Laravel Sanctum](https://laravel.com/docs/sanctum) personal access tokens.
+
+| Method | Endpoint        | Auth   | Notes                                                        |
+|--------|-----------------|--------|--------------------------------------------------------------|
+| POST   | `/api/register` | —      | Creates a CITIZEN account.                                   |
+| POST   | `/api/login`    | —      | `email`, `password`, optional `device_name`. Returns a token. Limited to 5 attempts/minute per email + IP. |
+| GET    | `/api/me`       | Bearer | Returns the authenticated user.                              |
+| POST   | `/api/logout`   | Bearer | Revokes only the token used for the request.                 |
+
+Send the token as `Authorization: Bearer <token>`.
 
 ## Stack
 

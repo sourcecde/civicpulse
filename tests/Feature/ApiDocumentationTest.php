@@ -25,5 +25,14 @@ class ApiDocumentationTest extends TestCase
 
         $this->assertContains('/health', $paths);
         $this->assertContains('/register', $paths);
+        $this->assertContains('/login', $paths);
+        $this->assertContains('/me', $paths);
+        $this->assertContains('/logout', $paths);
+
+        // Sanctum-protected routes are documented as requiring a bearer token;
+        // public routes explicitly opt out of security.
+        $this->assertSame('bearer', $response->json('components.securitySchemes.http.scheme'));
+        $this->assertSame([], $response->json('paths./login.post.security'));
+        $this->assertNull($response->json('paths./me.get.security'));
     }
 }
