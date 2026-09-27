@@ -267,6 +267,37 @@ Roles:
 - OPERATOR
 - ADMIN
 
+### Category
+
+Category is admin-managed master data representing a type of civic problem.
+
+Examples:
+- Pothole
+- Waterlogging
+- Garbage
+- Broken Streetlight
+- Drainage
+
+Category is stored in the database and must NOT be implemented as a PHP enum.
+
+Initial fields:
+- id
+- code
+- name
+- is_active
+- created_at
+- updated_at
+
+Rules:
+- ADMIN manages official categories.
+- Citizens cannot directly create official categories.
+- Citizens select from active categories when submitting a Report.
+- Categories should normally be deactivated rather than deleted because
+  historical Reports may reference them.
+- Future: citizens may select "Other" and suggest a missing category.
+- Future: category display must support English, Bengali and Hindi.
+- The translation storage design is not decided yet.
+
 ### Report
 Represents one citizen observation/evidence submission.
 
