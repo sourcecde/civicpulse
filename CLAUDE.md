@@ -164,7 +164,7 @@ These may be considered later when there is a clear product need.
 - PostgreSQL
 - PostGIS
 - Laravel migrations
-- Pest or PHPUnit
+- PHPUnit
 
 ### Frontend
 - React
@@ -269,7 +269,7 @@ Roles:
 
 ### Category
 
-Category is admin-managed master data representing a type of civic problem.
+Category represents an official type of civic problem.
 
 Examples:
 - Pothole
@@ -277,8 +277,6 @@ Examples:
 - Garbage
 - Broken Streetlight
 - Drainage
-
-Category is stored in the database and must NOT be implemented as a PHP enum.
 
 Initial fields:
 - id
@@ -289,14 +287,14 @@ Initial fields:
 - updated_at
 
 Rules:
+- Category is database-managed master data, not a PHP enum.
 - ADMIN manages official categories.
 - Citizens cannot directly create official categories.
 - Citizens select from active categories when submitting a Report.
-- Categories should normally be deactivated rather than deleted because
-  historical Reports may reference them.
+- Categories should normally be deactivated rather than deleted so historical Reports can continue referencing them.
 - Future: citizens may select "Other" and suggest a missing category.
-- Future: category display must support English, Bengali and Hindi.
-- The translation storage design is not decided yet.
+- Future: category display must support English, Bengali, and Hindi.
+- Translation storage design is not decided yet.
 
 ### Report
 Represents one citizen observation/evidence submission.
@@ -306,7 +304,7 @@ Likely fields:
 - public_reference
 - reporter_id
 - incident_id nullable during creation/matching if needed
-- category
+- category_id
 - description nullable
 - latitude
 - longitude
@@ -316,6 +314,8 @@ Likely fields:
 - updated_at
 
 A Report must not be treated as the long-lived physical problem itself.
+
+A Report can have multiple evidence/media records (see Evidence below). Do NOT model photos as fixed columns such as photo1/photo2/photo3 on the Report.
 
 ### Incident
 Represents the underlying civic problem that may aggregate multiple Reports and Confirmations.
@@ -420,7 +420,6 @@ Prefer PHP backed enums for stable domain values.
 Examples:
 - IncidentStatus
 - IncidentPriority
-- CivicCategory
 - UserRole
 - EvidenceType
 
@@ -464,6 +463,13 @@ Example endpoints (exact naming may evolve after repository inspection):
 - POST /api/login
 - POST /api/logout
 - GET /api/me
+
+### Categories
+- GET /api/categories
+- POST /api/categories — ADMIN only
+- PATCH /api/categories/{category} — ADMIN only
+
+No DELETE endpoint; categories are deactivated instead.
 
 ### Reports
 - POST /api/reports
@@ -673,7 +679,7 @@ Controller
 
 ## 18. Testing Expectations
 
-Use Pest or PHPUnit consistently.
+CivicPulse uses PHPUnit. Use it consistently.
 
 Prefer feature tests for HTTP/API behavior and unit tests for pure domain rules.
 
@@ -819,23 +825,24 @@ Build in this order unless existing repository progress means a step is already 
 6. health endpoint
 7. authentication with Sanctum
 8. user roles/authorization foundation
-9. Report domain model and create Report API
-10. Incident domain model
-11. Report -> Incident creation/attachment workflow
-12. location/geography storage
-13. nearby Incident query (Around Me backend)
-14. community confirmation / "Still there"
-15. simple duplicate/matching warning using category + distance + time/status rules
-16. Incident status workflow/history
-17. evidence/photo upload
-18. generic AdministrativeArea / Authority / Department foundation
-19. public live map / Civic Progress APIs
-20. authority/operator dashboard APIs
-21. assignment/routing foundation
-22. resolution evidence
-23. community resolution verification / reopen review flow
-24. recurring-hotspot analytics
-25. production/pilot hardening
+9. Category model, API, ADMIN authorization and tests
+10. Report domain model and create Report API
+11. Incident domain model
+12. Report -> Incident creation/attachment workflow
+13. location/geography storage
+14. nearby Incident query (Around Me backend)
+15. community confirmation / "Still there"
+16. simple duplicate/matching warning using category + distance + time/status rules
+17. Incident status workflow/history
+18. evidence/photo upload
+19. generic AdministrativeArea / Authority / Department foundation
+20. public live map / Civic Progress APIs
+21. authority/operator dashboard APIs
+22. assignment/routing foundation
+23. resolution evidence
+24. community resolution verification / reopen review flow
+25. recurring-hotspot analytics
+26. production/pilot hardening
 
 The core product loop to prove first is:
 
