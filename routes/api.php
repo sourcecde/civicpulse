@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\MeController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CategoryController;
 
 Route::get('/health', HealthController::class);
 
@@ -16,3 +17,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', MeController::class);
     Route::post('/logout', LogoutController::class);
 });
+
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::post('/categories', [CategoryController::class, 'store']);
+Route::put('/categories/{id}', [CategoryController::class, 'update']);
+Route::delete('/categories/{id}', [CategoryController::class, 'delete']);
