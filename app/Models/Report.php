@@ -18,6 +18,7 @@ class Report extends Model
         'tracking_number',
         'reporter_email',
         'reporter_id',
+        'guest_token_hash',
     ];
 
     public function category(): BelongsTo

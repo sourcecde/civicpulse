@@ -41,6 +41,7 @@ class ReportController extends Controller
         );
 
         $trackingNumber = 'CP-' . Str::upper(Str::random(12));
+        $guestToken = bin2hex(random_bytes(32));
 
         $report = Report::create([
             'category_id' => $validated['category_id'],
@@ -49,8 +50,12 @@ class ReportController extends Controller
             'tracking_number' => $trackingNumber,
             'reporter_email' => $validated['reporter_email'],
             'reporter_id' => $request->user('sanctum')?->id,
+            'guest_token_hash' => hash('sha256', $guestToken),
         ]);
-        return ReportResource::make($report);
+        return (ReportResource::make($report))
+            ->additional([
+                'guest_access_token' => $guestToken,
+            ]);
     }
 
     public function update(Request $request, $id)
@@ -74,11 +79,32 @@ class ReportController extends Controller
             );
         }
 
-        unset($validated['latitude'], $validated['longitude']);
+            unset($validated['latitude'], $validated['longitude']);
 
-        $report->update($validated);
+            $report->update($validated);
+
+            return ReportResource::make($report);
+    }
+
+    public function guestShow(Request $request, string $trackingNumber)
+    {
+        $validated = $request->validate([
+            'access_token' => 'required|string',
+        ]);
+
+        $report = Report::where('tracking_number', $trackingNumber)
+            ->first();
+
+        $providedHash = hash('sha256', $validated['access_token']);
+
+        if (
+            !$report ||
+            !$report->guest_token_hash ||
+            !hash_equals($report->guest_token_hash, $providedHash)
+        ) {
+            abort(403, 'Invalid tracking number or access token.');
+        }
 
         return ReportResource::make($report);
     }
-
 }

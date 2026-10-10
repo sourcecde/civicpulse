@@ -30,6 +30,8 @@ Route::delete('/categories/{id}', [CategoryController::class, 'delete']);
 // Report routes //
     // Public report submission
         Route::post('/reports', [ReportController::class, 'store']);
+        Route::post('/guest/reports/{trackingNumber}/lookup',
+            [ReportController::class, 'guestShow',])->middleware('throttle:10,1');
     // Protected report operations
         Route::middleware('auth:sanctum')->group(function () {
         Route::get('/reports', [ReportController::class, 'index']);
