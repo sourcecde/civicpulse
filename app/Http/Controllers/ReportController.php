@@ -6,11 +6,13 @@ use App\Http\Resources\ReportResource;
 use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
     public function index()
     {
+        Gate::authorize('viewAny', Report::class);
         $reports = Report::all();
         return ReportResource::collection($reports);
     }
@@ -18,6 +20,7 @@ class ReportController extends Controller
     public function show($id)
     {
         $report = Report::findOrFail($id);
+        Gate::authorize('view', $report);
         return ReportResource::make($report);
     }
 
@@ -45,6 +48,7 @@ class ReportController extends Controller
             'location' => $location,
             'tracking_number' => $trackingNumber,
             'reporter_email' => $validated['reporter_email'],
+            'reporter_id' => $request->user('sanctum')?->id,
         ]);
         return ReportResource::make($report);
     }
@@ -52,6 +56,7 @@ class ReportController extends Controller
     public function update(Request $request, $id)
     {
         $report = Report::findOrFail($id);
+        Gate::authorize('update', $report);
 
         $validated = $request->validate([
             'category_id' => 'sometimes|exists:categories,id',

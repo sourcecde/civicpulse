@@ -28,7 +28,11 @@ Route::delete('/categories/{id}', [CategoryController::class, 'delete']);
 
 
 // Report routes //
-Route::get('/reports', [ReportController::class, 'index']);
-Route::get('/reports/{id}', [ReportController::class, 'show']);
-Route::post('/reports', [ReportController::class, 'store']);
-Route::put('/reports/{id}', [ReportController::class, 'update']);
+    // Public report submission
+        Route::post('/reports', [ReportController::class, 'store']);
+    // Protected report operations
+        Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports/{id}', [ReportController::class, 'show']);
+        Route::patch('/reports/{id}', [ReportController::class, 'update']);
+    });
