@@ -1,4 +1,3 @@
-````
 # CivicPulse
 
 CivicPulse is a civic issue reporting and operations platform. Citizens report local problems
@@ -587,4 +586,3 @@ The dashboard picks up API changes after **Refresh**.
 - Administrative areas, authorities and departments for location-based routing.
 - Public transparency views and operator analytics.
 
-````
