@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Report;
 use App\Models\User;
 use App\Enums\UserRole;
+use Illuminate\Support\Facades\Gate;
 
 class ReportPolicy
 {
@@ -21,7 +22,6 @@ class ReportPolicy
      */
     public function view(User $user, Report $report): bool
     {
-        Gate::authorize('view', $report);
          if(in_array($user->role, [UserRole::OPERATOR, UserRole::ADMIN], true));
         {
             return true;
@@ -68,5 +68,22 @@ class ReportPolicy
     public function forceDelete(User $user, Report $report): bool
     {
         return false;
+    }
+
+    public function assign(User $user, Report $report): bool
+    {
+        return $user->role === UserRole::OPERATOR
+            || $user->role === UserRole::ADMIN;
+    }
+
+    public function transition(User $user, Report $report): bool
+    {
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return $user->role === UserRole::OPERATOR
+            && $report->assigned_operator_id !== null
+            && (string) $report->assigned_operator_id === (string) $user->id;
     }
 }
