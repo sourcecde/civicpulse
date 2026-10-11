@@ -9,6 +9,7 @@
     use App\Http\Controllers\CategoryController;
     use App\Http\Controllers\ReportController;
     use App\Http\Controllers\Api\ReportWorkflowController;
+    use App\Http\Controllers\Api\DashboardController;
 
     Route::get('/health', HealthController::class);
 
@@ -23,6 +24,9 @@
         Route::post('/reports/{report}/assign', [ReportWorkflowController::class, 'assign']);
         Route::patch('/reports/{report}/status', [ReportWorkflowController::class, 'updateStatus']);
         Route::get('/reports/{report}/history', [ReportWorkflowController::class, 'history']);
+
+        // Operator dashboard routes //
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
     });
 
     // Category routes //

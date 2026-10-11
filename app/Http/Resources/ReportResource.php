@@ -17,6 +17,7 @@ class ReportResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
+            'category' => CategoryResource::make($this->whenLoaded('category')),
             'description' => $this->description,
             'location' => $this->location,
             'tracking_number' => $this->tracking_number,
@@ -25,6 +26,7 @@ class ReportResource extends JsonResource
             'updated_at' => $this->updated_at,
             'status' => $this->status?->value,
             'assigned_operator_id' => $this->assigned_operator_id,
+            'assigned_operator' => UserResource::make($this->whenLoaded('assignedOperator')),
             'assigned_at' => $this->assigned_at?->toISOString(),
             'started_at' => $this->started_at?->toISOString(),
             'resolved_at' => $this->resolved_at?->toISOString(),
