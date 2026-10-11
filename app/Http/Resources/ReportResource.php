@@ -23,6 +23,12 @@ class ReportResource extends JsonResource
             'reporter_email' => $this->reporter_email,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'status' => $this->status?->value,
+            'assigned_operator_id' => $this->assigned_operator_id,
+            'assigned_at' => $this->assigned_at?->toISOString(),
+            'started_at' => $this->started_at?->toISOString(),
+            'resolved_at' => $this->resolved_at?->toISOString(),
+            'version' => $this->version,
         ];
     }
 }
