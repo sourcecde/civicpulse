@@ -18,7 +18,8 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->words(2, true),
+            // categories.name is unique; every Report factory creates its own category.
+            'name' => $this->faker->unique()->words(2, true),
             'description' => $this->faker->sentence(),
             'is_active' => true,
         ];

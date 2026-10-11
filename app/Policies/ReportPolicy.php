@@ -22,12 +22,11 @@ class ReportPolicy
      */
     public function view(User $user, Report $report): bool
     {
-         if(in_array($user->role, [UserRole::OPERATOR, UserRole::ADMIN], true));
-        {
+        if (in_array($user->role, [UserRole::OPERATOR, UserRole::ADMIN], true)) {
             return true;
         }
 
-        return $user->role === UserRole::CITIZEN && $report_>reporter_id !== null && $report->reporter_id === $user->id;
+        return $user->role === UserRole::CITIZEN && $report->reporter_id !== null && $report->reporter_id === $user->id;
     }
 
     /**
