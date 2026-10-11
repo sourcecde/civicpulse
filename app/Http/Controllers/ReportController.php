@@ -2,18 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListReportsRequest;
 use App\Http\Resources\ReportResource;
 use App\Models\Report;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
 
 class ReportController extends Controller
 {
-    public function index()
+    public function index(ListReportsRequest $request)
     {
-        Gate::authorize('viewAny', Report::class);
-        $reports = Report::all();
+        // Authorization (ReportPolicy::viewAny) is enforced by ListReportsRequest.
+        $filters = $request->validated();
+        $assignedOperatorId = $request->assignedOperatorId();
+        $sort = $filters['sort'] ?? 'created_at';
+        $direction = $filters['direction'] ?? 'desc';
+
+        $reports = Report::query()
+            ->with(['category', 'assignedOperator'])
+            ->when(isset($filters['status']), fn ($query) => $query->where('status', $filters['status']))
+            ->when(isset($filters['category_id']), fn ($query) => $query->where('category_id', $filters['category_id']))
+            ->when($assignedOperatorId !== null, fn ($query) => $query->where('assigned_operator_id', $assignedOperatorId))
+            ->when(isset($filters['created_from']), fn ($query) => $query->where(
+                'created_at',
+                '>=',
+                Carbon::createFromFormat('Y-m-d', $filters['created_from'])->startOfDay()
+            ))
+            // `created_to` is inclusive of the whole day; compare against the next midnight
+            // so the created_at column can still use a plain range scan.
+            ->when(isset($filters['created_to']), fn ($query) => $query->where(
+                'created_at',
+                '<',
+                Carbon::createFromFormat('Y-m-d', $filters['created_to'])->addDay()->startOfDay()
+            ))
+            // $sort and $direction are whitelisted by ListReportsRequest.
+            ->orderByRaw("{$sort} {$direction} NULLS LAST")
+            ->orderBy('id')
+            ->paginate($filters['per_page'] ?? 15)
+            ->withQueryString();
+
         return ReportResource::collection($reports);
     }
 
