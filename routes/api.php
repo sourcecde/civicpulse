@@ -48,3 +48,8 @@
             Route::get('/reports/{id}', [ReportController::class, 'show']);
             Route::patch('/reports/{id}', [ReportController::class, 'update']);
         });
+
+    // Operator routes //
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/operators', [\App\Http\Controllers\OperatorController::class, 'index']);
+    });
