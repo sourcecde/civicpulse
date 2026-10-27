@@ -6,6 +6,7 @@ import type {
   ReportFilters,
   ReportHistoryEntry,
   Resource,
+  Operator,
 } from '../types/api'
 import { apiClient } from './apiClient'
 
@@ -53,4 +54,9 @@ export async function updateReportStatus(
 export async function fetchCategories(): Promise<Category[]> {
   const { data } = await apiClient.get<Resource<Category[]>>('/categories')
   return data.data
+}
+
+export async function fetchOperators(): Promise<Operator[]> {
+    const { data } = await apiClient.get<Resource<Operator[]>>('/operators')
+    return data.data
 }
