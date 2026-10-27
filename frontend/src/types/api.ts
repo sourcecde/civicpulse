@@ -116,3 +116,8 @@ export interface ReportFilters {
   per_page?: number
   page?: number
 }
+
+export interface Operator {
+    id: number
+    name: string
+}

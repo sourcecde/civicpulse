@@ -1,6 +1,6 @@
 import { FilterX } from 'lucide-react'
 import { useState } from 'react'
-import type { Category, ReportFilters, ReportStatus, SortColumn, SortDirection, User } from '../types/api'
+import type { Category, ReportFilters, ReportStatus, SortColumn, SortDirection, User, Operator } from '../types/api'
 import { REPORT_STATUSES } from '../types/api'
 import { STATUS_LABELS } from '../utils/format'
 import { countActiveFilters, PER_PAGE_OPTIONS, DEFAULT_PER_PAGE } from '../utils/reportFilters'
@@ -29,7 +29,7 @@ export function ReportFiltersBar({
   onChange: (patch: Partial<ReportFilters>) => void
   onReset: () => void
   categories: Category[]
-  operators: User[]
+  operators: Operator[]
   currentUser: User
 }) {
   const active = countActiveFilters(filters)

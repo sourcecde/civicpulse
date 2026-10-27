@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { useToast } from '../hooks/useToast'
 import { toApiError, type ApiError } from '../services/errors'
 import { assignReport, updateReportStatus } from '../services/reportService'
-import type { Report, User } from '../types/api'
+import type { Report, Operator, User } from '../types/api'
 import { availableWorkflowActions, type WorkflowAction } from '../utils/workflow'
 import { ConfirmDialog } from './ConfirmDialog'
 
@@ -22,7 +22,7 @@ export function WorkflowPanel({
 }: {
   report: Report
   user: User
-  operators: User[]
+  operators: Operator[]
   onChanged: () => void
 }) {
   const { notify } = useToast()
@@ -139,7 +139,7 @@ export function WorkflowPanel({
                 {operators
                   .filter((op) => op.id !== user.id)
                   .map((op) => (
-                    <option key={op.id} value={op.id}>{op.name} · {op.email}</option>
+                    <option key={op.id} value={op.id}>{op.name}</option>
                   ))}
                 <option value={CUSTOM}>Enter a user ID…</option>
               </select>
