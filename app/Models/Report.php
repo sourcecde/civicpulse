@@ -27,7 +27,8 @@ class Report extends Model
         'assigned_at',
         'started_at',
         'resolved_at',
-        'version'
+        'version',
+        'incident_id',
     ];
 
     public function category(): BelongsTo
@@ -48,6 +49,11 @@ class Report extends Model
     public function statusHistories(): HasMany
     {
         return $this->hasMany(ReportStatusHistory::class);
+    }
+
+    public function incident(): BelongsTo
+    {
+        return $this->belongsTo(Incident::class);
     }
 
     protected function casts(): array
