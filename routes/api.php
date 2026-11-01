@@ -10,6 +10,7 @@
     use App\Http\Controllers\ReportController;
     use App\Http\Controllers\Api\ReportWorkflowController;
     use App\Http\Controllers\Api\DashboardController;
+    use App\Http\Controllers\Api\IncidentController;
 
     Route::get('/health', HealthController::class);
 
@@ -53,3 +54,7 @@
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/operators', [\App\Http\Controllers\OperatorController::class, 'index']);
     });
+
+    // Public Incident routes
+    Route::get('/incidents', [IncidentController::class, 'index']);
+    Route::get('/incidents/{id}', [IncidentController::class, 'show']);
