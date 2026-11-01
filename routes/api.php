@@ -57,4 +57,5 @@
 
     // Public Incident routes
     Route::get('/incidents', [IncidentController::class, 'index']);
+    Route::get('/incidents/nearby', [IncidentController::class, 'nearby']);
     Route::get('/incidents/{id}', [IncidentController::class, 'show']);

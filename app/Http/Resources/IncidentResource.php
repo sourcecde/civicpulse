@@ -23,8 +23,13 @@
                     'latitude' => $this->latitude,
                     'longitude' => $this->longitude,
                 ],
+                'distance_meters' => $this->whenHas(
+                    'distance_meters',
+                    fn () => round((float) $this->distance_meters, 2)
+                ),
                 'reports_count' => $this->whenCounted('reports'),
                 'created_at' => $this->created_at?->toISOString(),
             ];
+
         }
     }
