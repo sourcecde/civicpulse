@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
+use App\Models\Incident;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -72,15 +74,32 @@ class ReportController extends Controller
         $trackingNumber = 'CP-' . Str::upper(Str::random(12));
         $guestToken = bin2hex(random_bytes(32));
 
-        $report = Report::create([
-            'category_id' => $validated['category_id'],
-            'description' => $validated['description'],
-            'location' => $location,
-            'tracking_number' => $trackingNumber,
-            'reporter_email' => $validated['reporter_email'],
-            'reporter_id' => $request->user('sanctum')?->id,
-            'guest_token_hash' => hash('sha256', $guestToken),
-        ]);
+
+        $report = DB::transaction(function () use (
+            $validated,
+            $location,
+            $trackingNumber,
+            $guestToken,
+            $request
+        ) {
+            $incident = Incident::create([
+                'category_id' => $validated['category_id'],
+                'location' => $location,
+                'status' => 'OPEN',
+            ]);
+
+            return Report::create([
+                'incident_id' => $incident->id,
+                'category_id' => $validated['category_id'],
+                'description' => $validated['description'],
+                'location' => $location,
+                'tracking_number' => $trackingNumber,
+                'reporter_email' => $validated['reporter_email'],
+                'reporter_id' => $request->user('sanctum')?->id,
+                'guest_token_hash' => hash('sha256', $guestToken),
+            ]);
+        });
+
         return (ReportResource::make($report))
             ->additional([
                 'guest_access_token' => $guestToken,
