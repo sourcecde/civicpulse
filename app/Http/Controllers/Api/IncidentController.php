@@ -78,4 +78,42 @@
             return IncidentResource::collection($incidents);
         }
 
+        public function potentialMatches(Request $request)
+        {
+            $validated = $request->validate([
+                'category_id' => 'required|exists:categories,id',
+                'latitude' => 'required|numeric|between:-90,90',
+                'longitude' => 'required|numeric|between:-180,180',
+            ]);
+
+            $point = sprintf(
+                'SRID=4326;POINT(%s %s)',
+                (float) $validated['longitude'],
+                (float) $validated['latitude']
+            );
+
+            $incidents = Incident::query()
+                ->select('incidents.*')
+                ->selectRaw('ST_Y(location::geometry) AS latitude')
+                ->selectRaw('ST_X(location::geometry) AS longitude')
+                ->selectRaw(
+                    'ST_Distance(location, ?::geography) AS distance_meters',
+                    [$point]
+                )
+                ->where('category_id', $validated['category_id'])
+                ->where('status', 'OPEN')
+                ->whereRaw(
+                    'ST_DWithin(location, ?::geography, ?)',
+                    [$point, 50]
+                )
+                ->with('category')
+                ->withCount('reports')
+                ->orderBy('distance_meters')
+                ->orderBy('id')
+                ->limit(10)
+                ->get();
+
+            return IncidentResource::collection($incidents);
+        }
+
     }
