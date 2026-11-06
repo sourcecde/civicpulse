@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Gate;
 use App\Models\Incident;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ReportController extends Controller
 {
@@ -58,12 +59,26 @@ class ReportController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'incident_id' => 'nullable|uuid|exists:incidents,id',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
             'reporter_email' => 'required|email',
         ]);
+
+        if (!empty($validated['incident_id'])) {
+            $incident = Incident::findOrFail($validated['incident_id']);
+
+            if (
+                $incident->category_id != $validated['category_id'] ||
+                $incident->status !== 'OPEN'
+            ) {
+                throw ValidationException::withMessages([
+                    'incident_id' => 'The selected incident is not eligible for linking.',
+                ]);
+            }
+        }
 
         $location = sprintf(
             'SRID=4326;POINT(%s %s)',
@@ -82,11 +97,26 @@ class ReportController extends Controller
             $guestToken,
             $request
         ) {
-            $incident = Incident::create([
-                'category_id' => $validated['category_id'],
-                'location' => $location,
-                'status' => 'OPEN',
-            ]);
+            if (!empty($validated['incident_id'])) {
+                $incident = Incident::query()
+                    ->lockForUpdate()
+                    ->findOrFail($validated['incident_id']);
+
+                if (
+                    $incident->category_id != $validated['category_id'] ||
+                    $incident->status !== 'OPEN'
+                ) {
+                    throw ValidationException::withMessages([
+                        'incident_id' => 'The selected incident is not eligible for linking.',
+                    ]);
+                }
+            } else {
+                $incident = Incident::create([
+                    'category_id' => $validated['category_id'],
+                    'location' => $location,
+                    'status' => 'OPEN',
+                ]);
+            }
 
             return Report::create([
                 'incident_id' => $incident->id,
