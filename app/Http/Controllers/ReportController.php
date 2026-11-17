@@ -67,19 +67,6 @@ class ReportController extends Controller
             'reporter_email' => 'required|email',
         ]);
 
-        if (!empty($validated['incident_id'])) {
-            $incident = Incident::findOrFail($validated['incident_id']);
-
-            if (
-                $incident->category_id != $validated['category_id'] ||
-                $incident->status !== 'OPEN'
-            ) {
-                throw ValidationException::withMessages([
-                    'incident_id' => 'The selected incident is not eligible for linking.',
-                ]);
-            }
-        }
-
         $location = sprintf(
             'SRID=4326;POINT(%s %s)',
             $validated['longitude'],
